@@ -1,4 +1,6 @@
 ## dockerfile-from-image
+[![](https://badge.imagelayers.io/centurylink/dockerfile-from-image.svg)](https://imagelayers.io/?images=centurylink/dockerfile-from-image:latest 'Get your own badge on imagelayers.io')
+
 Reverse-engineers a Dockerfile from a Docker image.
 
 Similar to how the `docker history` command works, the *dockerfile-from-image*
@@ -34,12 +36,12 @@ the Dockerfile for that image being generated.
     $ docker pull ruby
     Pulling repository ruby
 
-    $ docker run -v /run/docker.sock:/run/docker.sock centurylink/dockerfile-from-image
+    $ docker run --rm -v /run/docker.sock:/run/docker.sock centurylink/dockerfile-from-image
     Usage: dockerfile-from-image.rb [options] <image_id>
         -f, --full-tree                  Generate Dockerfile for all parent layers
         -h, --help                       Show this message
 
-    $ docker run -v /run/docker.sock:/run/docker.sock centurylink/dockerfile-from-image ruby
+    $ docker run --rm -v /run/docker.sock:/run/docker.sock centurylink/dockerfile-from-image ruby
     FROM buildpack-deps:latest
     RUN useradd -g users user
     RUN apt-get update && apt-get install -y bison procps
@@ -60,13 +62,25 @@ the Dockerfile for that image being generated.
     ONBUILD WORKDIR /usr/src/app
     ONBUILD RUN [ ! -e Gemfile ] || bundle install --system
 
+### Run it as local command
+
+```
+$ docker pull centurylink/dockerfile-from-image
+$ alias dfimage="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock centurylink/dockerfile-from-image"
+$ dfimage --help
+Usage: dockerfile-from-image.rb [options] <image_id>
+    -f, --full-tree                  Generate Dockerfile for all parent layers
+    -h, --help                       Show this message
+$ dfimage ruby
+```
+
 ### How Does It Work?
 
 When an image is constructed from a Dockerfile, each instruction in the 
 Dockerfile results in a new layer. You can see all of the image layers by
 using the `docker images` command with the (soon-to-deprecated) `--tree` flag.
 
-    $ docker images --treee
+    $ docker images --tree
     Warning: '--tree' is deprecated, it will be removed soon. See usage.
     └─511136ea3c5a Virtual Size: 0 B Tags: scratch:latest
       └─1e8abad02296 Virtual Size: 121.8 MB
